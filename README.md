@@ -23,4 +23,7 @@ Further dependencies
 ```conda install wandb```
 
 Optional
-``` conda install -c conda-forge ipywidgets jupyterlab ```
+
+``` conda install -c conda-forge ipywidgets jupyterlab 
+jupyter nbextension enable --py widgetsnbextension
+```
