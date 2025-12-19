@@ -19,4 +19,8 @@ if you want to play around with it.
 Further dependencies
 
 ``` pip install gdown ```
+
 ```conda install wandb```
+
+Optional
+``` conda install -c conda-forge ipywidgets jupyterlab ```
