@@ -15,3 +15,7 @@ Some of the code is based on the Deepinv Libary, please checkout my fork at http
 ```pip install -e .[dataset,denoisers]```
 
 if you want to play around with it.
+
+Further dependencies
+
+``` pip install gdown ```
