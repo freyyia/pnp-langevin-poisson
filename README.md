@@ -6,6 +6,12 @@ This repository contains the code for the paper [Efficient Bayesian Computation 
 
 ```conda create -n env_name python=3.10```
 
-Some of the code is based on the Deepinv Libary, please checkout my fork at https://github.com/freyyia/deepinv
+Activate the environment
 
+```conda activate env_name```
 
+Some of the code is based on the Deepinv Libary, please checkout my fork at https://github.com/freyyia/deepinv. Clone the repository and from the deepinv directory install in editable mode
+
+```pip install -e .```
+
+if you want to play around with it.
