@@ -24,6 +24,6 @@ Further dependencies
 
 Optional
 
-``` conda install -c conda-forge ipywidgets jupyterlab 
-jupyter nbextension enable --py widgetsnbextension
-```
+``` conda install -c conda-forge ipywidgets jupyterlab ```
+
+```jupyter nbextension enable --py widgetsnbextension```
