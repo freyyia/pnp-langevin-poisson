@@ -1,6 +1,6 @@
 # pnp-langevin-poisson
 
-This repository contains the code for the paper ["Efficient Bayesian Computation Using Plug-and-Play Priors for Poisson Inverse Problems"](Efficient Bayesian Computation Using Plug-and-Play Priors for Poisson Inverse Problems)
+This repository contains the code for the paper [Efficient Bayesian Computation Using Plug-and-Play Priors for Poisson Inverse Problems](https://arxiv.org/abs/2503.16222) by Teresa Klatzer, Savvas Melidonis, Marcelo Pereyra, Konstantinos C. Zygalakis.
 
 ## Installing dependencies
 
