@@ -10,8 +10,8 @@ Activate the environment
 
 ```conda activate env_name```
 
-Some of the code is based on the Deepinv Libary, please checkout my fork at https://github.com/freyyia/deepinv. Clone the repository and from the deepinv directory install in editable mode
+Some of the code is based on the Deepinv Libary, please checkout my fork at https://github.com/freyyia/deepinv. Clone the repository and from the deepinv directory install in editable mode with dependencies
 
-```pip install -e .```
+```pip install -e .[dataset,denoisers]```
 
 if you want to play around with it.
