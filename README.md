@@ -9,15 +9,21 @@ Code accompanying the paper:
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/pnp-langevin-poisson.git
+git clone https://github.com/freyyia/pnp-langevin-poisson.git
 cd pnp-langevin-poisson
 
-# Create environment (recommended)
+# Create environment
 conda create -n pnp-poisson python=3.10
 conda activate pnp-poisson
 
-# Install dependencies
-pip install -r requirements.txt
+# Install PyTorch with CUDA (check your version with nvidia-smi, adjust cu121 if needed)
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+
+# Install the package and its dependencies
+pip install -e .
+
+# Optional: install W&B logging support
+pip install -e ".[wandb]"
 ```
 
 ## Repository Structure
@@ -90,7 +96,7 @@ Checkpoints are automatically downloaded on first run. Manual download:
   title={Efficient Bayesian Computation Using Plug-and-Play Priors for Poisson Inverse Problems},
   author={Klatzer, Teresa and Melidonis, Savvas and Pereyra, Marcelo and Zygalakis, Konstantinos C.},
   journal={SIAM Journal on Imaging Sciences},
-  year={2025}
+  year={2026}
 }
 ```
 

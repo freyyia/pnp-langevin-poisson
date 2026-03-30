@@ -33,6 +33,7 @@ dependencies = [
     "numpy>=1.24.0",
     "h5py>=3.8.0",
     "gdown>=4.7.0",
+    "huggingface_hub>=0.20.0",
     "matplotlib>=3.7.0",
 ]
 
@@ -43,7 +44,7 @@ all = ["pnp-langevin-poisson[wandb,dev]"]
 
 [project.urls]
 Homepage = "https://github.com/freyyia/pnp-langevin-poisson"
-Paper = "https://arxiv.org/abs/XXXX.XXXXX"
+Paper = "https://arxiv.org/abs/2503.16222"
 
 [tool.setuptools.packages.find]
 where = ["."]
