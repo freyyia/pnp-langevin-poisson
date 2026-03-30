@@ -1,0 +1,18 @@
+# Core dependencies
+torch>=2.0.0
+deepinv>=0.2.0
+numpy>=1.24.0
+
+# Data loading
+h5py>=3.8.0
+gdown>=4.7.0
+huggingface_hub>=0.20.0
+
+# Visualization
+matplotlib>=3.7.0
+
+# Logging (optional)
+wandb>=0.15.0
+
+# Metrics
+lpips>=0.1.4

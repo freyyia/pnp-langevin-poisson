@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pnp-langevin-poisson"
+version = "1.0.0"
+description = "PnP Langevin sampling for Poisson inverse problems"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Teresa Klatzer", email = "t.klatzer@sms.ed.ac.uk"},
+    {name = "Savvas Melidonis", email = "s.melidonis@fz-juelich.de"},
+    {name = "Marcelo Pereyra", email = "m.pereyra@hw.ac.uk"},
+    {name = "Konstantinos C. Zygalakis", email = "k.zygalakis@ed.ac.uk"},
+]
+keywords = ["bayesian-inference", "inverse-problems", "mcmc", "plug-and-play", "poisson"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+
+dependencies = [
+    "torch>=2.0.0",
+    "deepinv>=0.2.0",
+    "numpy>=1.24.0",
+    "h5py>=3.8.0",
+    "gdown>=4.7.0",
+    "matplotlib>=3.7.0",
+]
+
+[project.optional-dependencies]
+wandb = ["wandb>=0.15.0"]
+dev = ["pytest", "black", "ruff"]
+all = ["pnp-langevin-poisson[wandb,dev]"]
+
+[project.urls]
+Homepage = "https://github.com/freyyia/pnp-langevin-poisson"
+Paper = "https://arxiv.org/abs/XXXX.XXXXX"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["experiments*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py39", "py310", "py311"]
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]  # Line length handled by black

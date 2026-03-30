@@ -1,31 +1,103 @@
-# pnp-langevin-poisson
+# PnP Langevin Sampling for Poisson Inverse Problems
 
-This repository contains the code for the paper [Efficient Bayesian Computation Using Plug-and-Play Priors for Poisson Inverse Problems](https://arxiv.org/abs/2503.16222) by Teresa Klatzer, Savvas Melidonis, Marcelo Pereyra, Konstantinos C. Zygalakis.
+Code accompanying the paper:
 
+> **Efficient Bayesian Computation Using Plug-and-Play Priors for Poisson Inverse Problems**  
+> Teresa Klatzer, Savvas Melidonis, Marcelo Pereyra, Konstantinos C. Zygalakis
 
-Work in progress! 👷
+## Installation
 
-## Installing dependencies
+```bash
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/pnp-langevin-poisson.git
+cd pnp-langevin-poisson
 
-```conda create -n env_name python=3.10```
+# Create environment (recommended)
+conda create -n pnp-poisson python=3.10
+conda activate pnp-poisson
 
-Activate the environment
+# Install dependencies
+pip install -r requirements.txt
+```
 
-```conda activate env_name```
+## Repository Structure
 
-Some of the code is based on the Deepinv Libary, please checkout my fork at https://github.com/freyyia/deepinv. Clone the repository and from the deepinv directory install in editable mode with dependencies
+```
+pnp-langevin-poisson/
+├── experiments/          # Experiment scripts
+│   ├── low_dose_ct.py   # Low-dose CT reconstruction
+│   └── deconvolution.py # Poisson deconvolution (to be added)
+├── checkpoints/          # Pretrained model weights (auto-downloaded)
+├── data/                 # Datasets (user-provided)
+├── results/              # Output directory
+└── configs/              # Example configuration files
+```
 
-```pip install -e .[dataset,denoisers]```
+## Quick Start
 
-if you want to play around with it.
+### Low-dose CT Experiment
 
-Further dependencies
+```bash
+# Run with default parameters (SKROCK method)
+python experiments/low_dose_ct.py
 
-``` pip install gdown ```
+# Run with Mirror Langevin Algorithm
+python experiments/low_dose_ct.py --method MLA --iterations 5000
 
-```conda install wandb```
+# Enable W&B logging
+python experiments/low_dose_ct.py --wandb --wandb_project my-project
+```
 
-Optional
+### Command Line Options
 
-``` conda install -c conda-forge ipywidgets jupyterlab ```
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--method` | SKROCK | Sampling method: SKROCK, MLA, or ULA |
+| `--poisson_level` | 10.0 | Photon level α (lower = harder problem) |
+| `--regularization` | 4.0 | Regularization parameter ρ |
+| `--step_size` | 5e-5 | MCMC step size δ |
+| `--iterations` | 2000 | Number of sampling iterations |
+| `--im_idx` | 0 | Test image index |
+| `--data_dir` | `<repo>/data` | Path to data directory |
+| `--results_dir` | `<repo>/results` | Path to results directory |
+| `--device` | auto | Device override (e.g. `cuda:0`, `cpu`) |
+| `--seed` | 0 | Random seed |
+| `--wandb` | False | Enable W&B logging |
+| `--wandb_project` | pnp-langevin-ct | W&B project name |
+| `--wandb_entity` | None | W&B entity (username or team) |
+| `--save_samples` | False | Save posterior mean/std tensors |
+| `--no_plots` | False | Disable plot generation |
+| `--inset_plots` | False | Save inset crop plots for each image |
+| `--inset_loc X Y` | 0.52 0.55 | Inset crop location in [0,1] |
 
+## Data
+
+### LIDC-IDRI Dataset (CT)
+
+The preprocessed LIDC test set is **downloaded automatically** on first run from
+[`jtachella/equivariant_bootstrap`](https://huggingface.co/datasets/jtachella/equivariant_bootstrap)
+on Hugging Face and placed in `data/Tomography/dinv_dataset0.h5`.
+
+### Pretrained Checkpoints
+
+Checkpoints are automatically downloaded on first run. Manual download:
+- [GS-DRUNet CT](https://drive.google.com/uc?id=1WuW6XUuf33P5odf91D_RtFXRrVpYVPhG) → `checkpoints/gsdrunet_ct.ckpt`
+
+## Citation
+
+```bibtex
+@article{klatzer2025pnplangevin,
+  title={Efficient Bayesian Computation Using Plug-and-Play Priors for Poisson Inverse Problems},
+  author={Klatzer, Teresa and Melidonis, Savvas and Pereyra, Marcelo and Zygalakis, Konstantinos C.},
+  journal={SIAM Journal on Imaging Sciences},
+  year={2025}
+}
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
+
+## Acknowledgments
+
+This work was supported by UKRI EPSRC (EP/V006134/1, EP/Z534481/1).
