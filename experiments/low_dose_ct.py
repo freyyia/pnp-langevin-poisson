@@ -6,7 +6,7 @@ using Plug-and-Play priors with MCMC sampling methods (SKROCK, MLA, ULA).
 
 Reference:
     Klatzer et al., "Efficient Bayesian Computation Using Plug-and-Play Priors 
-    for Poisson Inverse Problems", 2025.
+    for Poisson Inverse Problems", 2026.
 """
 
 import argparse
@@ -55,6 +55,7 @@ DEFAULTS = {
     "eta": 0.05,
     "inner_iter": 10,
     "thinning": 10,
+    "burnin_ratio": 0.02,
     "seed": 0,
 }
 
@@ -170,6 +171,8 @@ def create_ct_physics(img_size, poisson_level, device):
     physics = dinv.physics.Tomography(
         angles=360,
         img_width=img_size,
+        normalize=False,
+        adjoint_via_backprop=False,
         device=device,
         noise_model=noise_model,
     )
@@ -188,20 +191,24 @@ def load_denoiser(ckpt_path, device):
     return model.to(device)
 
 
-def create_sampling_callback(ground_truth, device):
-    """Create callback for W&B logging during sampling."""
+def create_sampling_callback(ground_truth, device, print_every=100):
+    """Create sampling callback for diagnostics.
+
+    :param print_every: print PSNR every this many iterations.
+    """
     def callback(X, statistics, iter, **kwargs):
         mean_estimate = statistics[0].mean().clamp(0, 1)
         psnr = dinv.metric.PSNR()(ground_truth, mean_estimate).item()
 
-        print(f"Iteration {iter+1}: PSNR={psnr:.2f} dB")
+        if iter % print_every == 0:
+            print(f"\nIteration {iter}: PSNR={psnr:.2f} dB")
 
         if WANDB_AVAILABLE and wandb.run is not None:
             wandb.log({
                 "PSNR": psnr,
                 "Posterior mean": wandb.Image(mean_estimate.cpu().squeeze()),
                 "Posterior std": wandb.Image(statistics[0].var().sqrt().cpu().squeeze()),
-            }, step=iter + 1)
+            }, step=iter)
     
     return callback
 
@@ -285,7 +292,7 @@ def main():
     
     # Generate noisy measurement
     y = physics(x).clamp(1e-4, None)
-    fbp = physics.A_dagger(y)
+    fbp = physics.A_dagger(y, fbp=True)
     
     print(f"Observation range: [{y.min().item():.4f}, {y.max().item():.4f}]")
     print(f"Ground truth range: [{x.min().item():.4f}, {x.max().item():.4f}]")
@@ -331,6 +338,8 @@ def main():
     # Create sampler
     iterations = args.iterations # if torch.cuda.is_available() else 1000
 
+    print_every = max(1, iterations // 10)
+
     sampler = dinv.sampling.sampling_builder(
         iterator=args.method.upper(),
         prior=prior,
@@ -338,9 +347,10 @@ def main():
         max_iter=iterations,
         params_algo=params,
         thinning=DEFAULTS["thinning"],
+        burnin_ratio=DEFAULTS["burnin_ratio"],
         verbose=True,
         clip=[0, 1],
-        callback=create_sampling_callback(x, device),
+        callback=create_sampling_callback(x, device, print_every=print_every),
     )
     
     # Run sampling

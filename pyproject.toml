@@ -39,8 +39,9 @@ dependencies = [
 
 [project.optional-dependencies]
 wandb = ["wandb>=0.15.0"]
+bregman = ["pytorch-lightning>=2.0.0", "opencv-python>=4.7.0"]
 dev = ["pytest", "black", "ruff"]
-all = ["pnp-langevin-poisson[wandb,dev]"]
+all = ["pnp-langevin-poisson[wandb,bregman,dev]"]
 
 [project.urls]
 Homepage = "https://github.com/freyyia/pnp-langevin-poisson"

@@ -54,6 +54,21 @@ python experiments/low_dose_ct.py --method MLA --iterations 5000
 python experiments/low_dose_ct.py --wandb --wandb_project my-project
 ```
 
+### Poisson Deblurring Experiment
+
+```bash
+# Run with default parameters (SKROCK, set3c, kernel 1)
+python experiments/deblurring.py
+
+# Run on cbsd10, kernel 3, with MLA
+python experiments/deblurring.py --dataset cbsd10 --im_idx 2 --kernel 3 --method MLA
+
+# Disable flip/rotation augmentation
+python experiments/deblurring.py --no_flip_n_rot
+```
+
+The Levin09 blur kernels are **downloaded automatically** on first run to `data/kernels/Levin09.mat`.
+
 ### Command Line Options
 
 | Argument | Default | Description |
