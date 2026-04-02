@@ -48,8 +48,9 @@ DEFAULTS = {
     "im_idx": 0,
     "method": "SKROCK",
     "poisson_level": 10.0,
-    "regularization": 4.0,
-    "step_size": 5e-5,
+    "regularization": 200.0,  #400!  = 4.0 * alpha^2 (alpha=10)
+    # step_size = 5e-5 / (100 * 173) ~ 2.89e-9
+    "step_size": 2.89e-9,
     "iterations": 2000,
     "sigma": 20 / 255.0,
     "eta": 0.05,

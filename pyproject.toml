@@ -35,13 +35,21 @@ dependencies = [
     "gdown>=4.7.0",
     "huggingface_hub>=0.20.0",
     "matplotlib>=3.7.0",
+    "pytorch-lightning>=2.0.0",
 ]
 
 [project.optional-dependencies]
 wandb = ["wandb>=0.15.0"]
-bregman = ["pytorch-lightning>=2.0.0", "opencv-python>=4.7.0"]
+bregman = ["opencv-python>=4.7.0"]
+eval = [
+    "opencv-python>=4.7.0",
+    "scikit-image>=0.20.0",
+    "lpips>=0.1.4",
+    "pandas>=2.0.0",
+    "natsort>=8.0.0",
+]
 dev = ["pytest", "black", "ruff"]
-all = ["pnp-langevin-poisson[wandb,bregman,dev]"]
+all = ["pnp-langevin-poisson[wandb,bregman,eval,dev]"]
 
 [project.urls]
 Homepage = "https://github.com/freyyia/pnp-langevin-poisson"
