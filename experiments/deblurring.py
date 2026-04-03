@@ -150,7 +150,15 @@ DEFAULTS_RPNP_ULA = {
     "seed": 0,
 }
 
-DEFAULTS = DEFAULTS_MLA
+DEFAULTS = DEFAULTS_MLA  # fallback; overridden at parse time by _METHOD_DEFAULTS
+
+_METHOD_DEFAULTS = {
+    "SKROCK":    DEFAULTS_SKROCK,
+    "MLA":       DEFAULTS_MLA,
+    "ULA":       DEFAULTS_PPNP_ULA,
+    "PPNP_ULA":  DEFAULTS_PPNP_ULA,
+    "RPNP_ULA":  DEFAULTS_RPNP_ULA,
+}
 
 
 # -----------------------------------------------------------------------------
@@ -159,48 +167,54 @@ DEFAULTS = DEFAULTS_MLA
 
 def parse_args():
     """Parse command line arguments."""
+    # Pre-parse --method so we can pick the right DEFAULTS before building the full parser.
+    _pre = argparse.ArgumentParser(add_help=False)
+    _pre.add_argument("--method", type=str, default=DEFAULTS["method"])
+    _method = _pre.parse_known_args()[0].method.upper()
+    D = _METHOD_DEFAULTS.get(_method, DEFAULTS)
+
     parser = argparse.ArgumentParser(
         description="Poisson deblurring with PnP Langevin sampling",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     # Data arguments
-    parser.add_argument("--dataset", type=str, default=DEFAULTS["dataset"],
+    parser.add_argument("--dataset", type=str, default=D["dataset"],
                         choices=["set3c", "cbsd10"],
                         help="Test dataset")
-    parser.add_argument("--im_idx", type=int, default=DEFAULTS["im_idx"],
+    parser.add_argument("--im_idx", type=int, default=D["im_idx"],
                         help="Image index within dataset")
-    parser.add_argument("--kernel", type=int, default=DEFAULTS["kernel"],
+    parser.add_argument("--kernel", type=int, default=D["kernel"],
                         choices=list(range(N_LEVIN_KERNELS)),
                         help="Levin09 blur kernel index (0-7)")
-    parser.add_argument("--patch_size", type=int, default=DEFAULTS["patch_size"],
+    parser.add_argument("--patch_size", type=int, default=D["patch_size"],
                         help="Center-crop size applied to input images")
     parser.add_argument("--data_dir", type=str, default=None,
                         help="Path to data directory (default: <repo>/data)")
 
     # Method arguments
-    parser.add_argument("--denoiser", type=str, default=DEFAULTS["denoiser"],
+    parser.add_argument("--denoiser", type=str, default=D["denoiser"],
                         choices=["proxdrunet", "lmmo", "gsdrunet", "bregman_drunet"],
                         help="Denoiser/prior: proxdrunet (GSPnP + Prox-DRUNet), "
                              "lmmo (ScorePrior + DnCNN lipschitz), "
                              "gsdrunet (GSPnP + GSDRUNet), "
                              "bregman_drunet (BregmanDRUNet; requires [bregman] extra + submodule)")
-    parser.add_argument("--method", type=str, default=DEFAULTS["method"],
+    parser.add_argument("--method", type=str, default=D["method"],
                         choices=["SKROCK", "MLA", "ULA", "PPNP_ULA", "RPNP_ULA"],
                         help="Sampling method: SKROCK (SK-ROCK accelerated Langevin), "
                              "MLA (Mirror Langevin), ULA/PPNP_ULA (projected ULA), "
                              "RPNP_ULA (reflected ULA with soft penalty)")
-    parser.add_argument("--poisson_level", type=float, default=DEFAULTS["poisson_level"],
+    parser.add_argument("--poisson_level", type=float, default=D["poisson_level"],
                         help="Photon level alpha (lower = more noise)")
-    parser.add_argument("--regularization", type=float, default=DEFAULTS["regularization"],
+    parser.add_argument("--regularization", type=float, default=D["regularization"],
                         help="Regularization parameter rho")
-    parser.add_argument("--noise_lvl_denoiser", type=float, default=DEFAULTS["noise_lvl_denoiser"],
+    parser.add_argument("--noise_lvl_denoiser", type=float, default=D["noise_lvl_denoiser"],
                         help="(Gaussian) noise level denoiser")
-    parser.add_argument("--delta_frac", type=float, default=DEFAULTS["delta_frac"],
+    parser.add_argument("--delta_frac", type=float, default=D["delta_frac"],
                         help="Step size as a fraction of delta_max (delta = delta_frac * delta_max)")
-    parser.add_argument("--iterations", type=int, default=DEFAULTS["iterations"],
+    parser.add_argument("--iterations", type=int, default=D["iterations"],
                         help="Number of MCMC iterations")
-    parser.add_argument("--flip_n_rot", action="store_true", default=DEFAULTS["flip_n_rot"],
+    parser.add_argument("--flip_n_rot", action="store_true", default=D["flip_n_rot"],
                         help="Apply random flip/rotation augmentation to denoiser gradient")
     parser.add_argument("--no_flip_n_rot", dest="flip_n_rot", action="store_false",
                         help="Disable flip/rotation augmentation")
@@ -220,7 +234,7 @@ def parse_args():
                         help="W&B entity (username or team)")
 
     # Misc arguments
-    parser.add_argument("--seed", type=int, default=DEFAULTS["seed"],
+    parser.add_argument("--seed", type=int, default=D["seed"],
                         help="Random seed for reproducibility")
     parser.add_argument("--device", type=str, default=None,
                         help="Device (default: auto-detect GPU)")
@@ -591,6 +605,7 @@ def save_results(results_dir, mean, var, ground_truth, observation, x_init, args
 
 def main():
     args = parse_args()
+    D = _METHOD_DEFAULTS.get(args.method.upper(), DEFAULTS)
 
     torch.manual_seed(args.seed)
     random.seed(args.seed)
@@ -645,7 +660,7 @@ def main():
     # Lipschitz constant of the likelihood gradient:
     #   L_y = alpha^2 * max(y) / beta^2  (matches references for all methods)
     L_y = args.poisson_level ** 2 * (y.max() / beta ** 2)
-    eps = DEFAULTS["sigma"]**2
+    eps = D["sigma"]**2
     delta_max = 1.0 / (1.0 / eps + L_y.item())
     step_size = args.delta_frac * delta_max
     print(f"L_y: {L_y.item():.2e}, delta_max: {delta_max:.2e}, delta_frac: {args.delta_frac}, step_size: {step_size:.2e}")
@@ -658,7 +673,7 @@ def main():
     params = {
         "step_size": step_size,
         "alpha": args.regularization,
-        "sigma": DEFAULTS["sigma"],
+        "sigma": D["sigma"],
         "method": args.method,
     }
     if args.method.upper() == "SKROCK":
@@ -699,7 +714,7 @@ def main():
             })
 
     # Create sampler
-    burnin_ratio = DEFAULTS["burnin_ratio"]
+    burnin_ratio = D["burnin_ratio"]
     print_every = max(1, args.iterations // 10)
 
     sampler = dinv.sampling.sampling_builder(
@@ -708,7 +723,7 @@ def main():
         data_fidelity=data_fidelity,
         max_iter=args.iterations,
         params_algo=params,
-        thinning=DEFAULTS["thinning"],
+        thinning=D["thinning"],
         burnin_ratio=burnin_ratio,
         verbose=True,
         clip=[0, 1],
